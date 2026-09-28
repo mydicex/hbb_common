@@ -75,7 +75,15 @@ lazy_static::lazy_static! {
     static ref KEY_PAIR: Mutex<Option<KeyPair>> = Default::default();
     static ref USER_DEFAULT_CONFIG: RwLock<(UserDefaultConfig, Instant)> = RwLock::new((UserDefaultConfig::load(), Instant::now()));
     pub static ref NEW_STORED_PEER_CONFIG: Mutex<HashSet<String>> = Default::default();
-    pub static ref DEFAULT_SETTINGS: RwLock<HashMap<String, String>> = Default::default();
+    // DiceX: DiceX's server is the default ID/relay server and key. Without these the client
+    // counts the built-in server as the RustDesk "public server" and falls back to
+    // admin.rustdesk.com for account calls. Defaults only: Settings > Network can change them,
+    // and a signed custom.txt (white-label) can replace them.
+    pub static ref DEFAULT_SETTINGS: RwLock<HashMap<String, String>> = RwLock::new(HashMap::from([
+        ("custom-rendezvous-server".to_owned(), RENDEZVOUS_SERVERS[0].to_owned()),
+        ("relay-server".to_owned(), RENDEZVOUS_SERVERS[0].to_owned()),
+        ("key".to_owned(), RS_PUB_KEY.to_owned()),
+    ]));
     pub static ref OVERWRITE_SETTINGS: RwLock<HashMap<String, String>> = Default::default();
     pub static ref DEFAULT_DISPLAY_SETTINGS: RwLock<HashMap<String, String>> = Default::default();
     pub static ref OVERWRITE_DISPLAY_SETTINGS: RwLock<HashMap<String, String>> = Default::default();
@@ -116,8 +124,10 @@ const CHARS: &[char] = &[
     'm', 'n', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
 ];
 
-pub const RENDEZVOUS_SERVERS: &[&str] = &["rs-ny.rustdesk.com"];
-pub const RS_PUB_KEY: &str = "OeVuKk5nlHiXp+APNn0Y3pC1Iwpwn44JGqrQCsWqmBw=";
+// DiceX: DiceX's own ID/relay server (RustDesk Server OSS) and its public key. The relay is on the
+// same host. Users can still override both in Settings > Network.
+pub const RENDEZVOUS_SERVERS: &[&str] = &["rs.dicex.me"];
+pub const RS_PUB_KEY: &str = "Qc32d7Yt5Nb3XXij0MdqHhQa54ZmgOr0ELeJsJEazrI=";
 
 pub const RENDEZVOUS_PORT: i32 = 21116;
 pub const RELAY_PORT: i32 = 21117;
