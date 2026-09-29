@@ -87,7 +87,11 @@ lazy_static::lazy_static! {
     pub static ref OVERWRITE_SETTINGS: RwLock<HashMap<String, String>> = Default::default();
     pub static ref DEFAULT_DISPLAY_SETTINGS: RwLock<HashMap<String, String>> = Default::default();
     pub static ref OVERWRITE_DISPLAY_SETTINGS: RwLock<HashMap<String, String>> = Default::default();
-    pub static ref DEFAULT_LOCAL_SETTINGS: RwLock<HashMap<String, String>> = Default::default();
+    // DiceX: English unless the user picks another language (owner, 2026-09-29), instead of
+    // following the Windows language.
+    pub static ref DEFAULT_LOCAL_SETTINGS: RwLock<HashMap<String, String>> = RwLock::new(HashMap::from([
+        (keys::OPTION_LANGUAGE.to_owned(), "en".to_owned()),
+    ]));
     pub static ref OVERWRITE_LOCAL_SETTINGS: RwLock<HashMap<String, String>> = Default::default();
     pub static ref HARD_SETTINGS: RwLock<HashMap<String, String>> = Default::default();
     pub static ref BUILTIN_SETTINGS: RwLock<HashMap<String, String>> = Default::default();
@@ -124,9 +128,10 @@ const CHARS: &[char] = &[
     'm', 'n', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
 ];
 
-// DiceX: DiceX's own ID/relay server (RustDesk Server OSS) and its public key. The relay is on the
-// same host. Users can still override both in Settings > Network.
-pub const RENDEZVOUS_SERVERS: &[&str] = &["rs.dicex.me"];
+// DiceX: DiceX's own ID/relay servers (RustDesk Server OSS), region 1 first (the default); the
+// app's region list is in flutter/lib/dicex/dicex.dart. All regions share one key pair, so one
+// public key serves them all. The relay is on the same host. `rs.dicex.me` is the landing page.
+pub const RENDEZVOUS_SERVERS: &[&str] = &["rsns01.dicex.me"];
 pub const RS_PUB_KEY: &str = "Qc32d7Yt5Nb3XXij0MdqHhQa54ZmgOr0ELeJsJEazrI=";
 
 pub const RENDEZVOUS_PORT: i32 = 21116;
