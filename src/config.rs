@@ -93,7 +93,11 @@ lazy_static::lazy_static! {
         (keys::OPTION_LANGUAGE.to_owned(), "en".to_owned()),
     ]));
     pub static ref OVERWRITE_LOCAL_SETTINGS: RwLock<HashMap<String, String>> = Default::default();
-    pub static ref HARD_SETTINGS: RwLock<HashMap<String, String>> = Default::default();
+    // DiceX: on Android the first release only controls other devices ("outgoing only"), so a
+    // phone cannot be taken over — the scam where someone is talked into sharing their phone and
+    // reads the bank's one-time codes. Owner's decision, 2026-09-30. Being controlled comes back
+    // once there are anti-fraud safeguards.
+    pub static ref HARD_SETTINGS: RwLock<HashMap<String, String>> = RwLock::new(dicex_hard_settings());
     pub static ref BUILTIN_SETTINGS: RwLock<HashMap<String, String>> = Default::default();
 }
 
@@ -2795,6 +2799,15 @@ pub fn is_incoming_only() -> bool {
 }
 
 #[inline]
+/// DiceX: built-in hard settings before any custom.txt is read (see HARD_SETTINGS).
+fn dicex_hard_settings() -> HashMap<String, String> {
+    #[allow(unused_mut)]
+    let mut settings = HashMap::new();
+    #[cfg(target_os = "android")]
+    settings.insert("conn-type".to_owned(), "outgoing".to_owned());
+    settings
+}
+
 pub fn is_outgoing_only() -> bool {
     HARD_SETTINGS
         .read()
