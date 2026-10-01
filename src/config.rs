@@ -2801,8 +2801,10 @@ pub fn is_incoming_only() -> bool {
 #[inline]
 /// DiceX: built-in hard settings before any custom.txt is read (see HARD_SETTINGS).
 fn dicex_hard_settings() -> HashMap<String, String> {
-    #[allow(unused_mut)]
     let mut settings = HashMap::new();
+    // Login, the address book and device groups need RustDesk Server Pro's API (port 21114),
+    // which DiceX does not run; hidden until DiceX accounts can sign in (2026-10-01).
+    settings.insert("disable-account".to_owned(), "Y".to_owned());
     #[cfg(target_os = "android")]
     settings.insert("conn-type".to_owned(), "outgoing".to_owned());
     settings
